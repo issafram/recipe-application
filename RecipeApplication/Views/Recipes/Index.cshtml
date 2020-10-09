@@ -1,0 +1,100 @@
+﻿@model IndexViewModel
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{ 
+    <script>
+    $(function () {
+        $("#button-filter").click(function (e) {
+            e.preventDefault();
+            var baseUrl = '@Url.Action("Index", "Recipes", new { filter = "__REPLACE__"})';
+            var filterValue = $("#filter-text").val();
+            var finalUrl = baseUrl.replace("__REPLACE__", filterValue);
+            document.location = finalUrl;
+        });
+
+        $("#filter-text").keydown(function (e) {
+            if (e.keyCode === 13) {
+                e.preventDefault();
+                $("#button-filter").click();
+            }
+        });
+
+        $("#button-filter-clear").click(function (e) {
+            e.preventDefault();
+            var url = '@Url.Action("Index", "Recipes")';
+            document.location = url;
+        });
+    });
+    </script>
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<div class="input-group mb-3">
+    <input type="text" class="form-control" id="filter-text" placeholder="Filter recipes" aria-label="Filter recipes" aria-describedby="button-filter" value="@Model.Filter">
+    <div class="input-group-append">
+        <button class="btn btn-outline-secondary" type="button" id="button-filter">Filter</button>
+        <button class="btn btn-outline-secondary" type="button" id="button-filter-clear">Clear</button>
+    </div>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Recipes[0].Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Recipes[0].ImageUrl)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Recipes[0].Comment)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Recipes[0].Author)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Recipes[0].Ingredients)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Recipes[0].Instruction)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.Recipes) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ImageUrl)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Comment)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Author)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Ingredients)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Instruction)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
