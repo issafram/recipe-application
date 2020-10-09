@@ -134,12 +134,20 @@ namespace RecipeApplication.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpGet]
+        [Route("api/recipes")]
+        public async Task<IActionResult> GetRecipes([FromQuery] string filter)
+        {
+            var recipeBusinessObjects = await this.recipesService.GetAllRecipesAsync(filter);
+            var recipeViewModels = recipeBusinessObjects.Select(x => ConvertToViewModel(x)).ToList();
+            return this.Ok(recipeViewModels);
+        }
+
         private async Task<bool> RecipeExists(int id)
         {
             var recipeBusinessModel = await this.recipesService.GetRecipeByIdAsync(id);
-            return recipesService != null;
+            return recipeBusinessModel != null;
         }
-
 
         private static ViewRecipeViewModel ConvertToViewModel(RecipeBusinessObject recipeBusinessObject)
         {
