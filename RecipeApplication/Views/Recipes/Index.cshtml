@@ -8,18 +8,21 @@
 @section Scripts{ 
     <script>
     $(function () {
-
+        var favoritesAnchorTemplate = '<a class="dropdown-item" href="@Url.Action("Details", "Recipes", new { id = "__REPLACE__" })">__REPLACE_TITLE__</a>'
         var favorites = JSON.parse(localStorage.getItem("recipe-favorites"));
-        $.each(favorites, function (index, id) {
-            $("td[data-recipe-id='" + id + "']").find("button.not-bookmarked").addClass("d-none");
-            $("td[data-recipe-id='" + id + "']").find("button.bookmarked").removeClass("d-none");
+        $.each(favorites, function (index, obj) {
+            $("td[data-recipe-id='" + obj.id + "']").find("button.not-bookmarked").addClass("d-none");
+            $("td[data-recipe-id='" + obj.id + "']").find("button.bookmarked").removeClass("d-none");
+
+            var favoriteAnchor = favoritesAnchorTemplate.replace(/__REPLACE__/g, obj.id).replace(/__REPLACE_TITLE__/g, obj.title);
+            $("#favorites-menu").append(favoriteAnchor);
         });
 
         $("#button-filter").click(function (e) {
             e.preventDefault();
             var baseUrl = '@Url.Action("Index", "Recipes", new { filter = "__REPLACE__"})';
             var filterValue = $("#filter-text").val();
-            var finalUrl = baseUrl.replace("__REPLACE__", filterValue);
+            var finalUrl = baseUrl.replaceAll("__REPLACE__", filterValue);
             document.location = finalUrl;
         });
 
@@ -40,27 +43,43 @@
         $(".bookmark").click(function (e) {
             e.preventDefault();
             var recipeId = $(this).data("recipe-id");
+            var recipeTitle = $(this).siblings().first(".recipe-title").data("recipe-title");
+
+
             var favorites = JSON.parse(localStorage.getItem("recipe-favorites"));
             if (favorites === null) {
-                favorites = [recipeId];
+                favorites = [];
+                favorites.push({ id: recipeId, title: recipeTitle });
+                $(this).find("button.not-bookmarked").addClass("d-none");
+                $(this).find("button.bookmarked").removeClass("d-none");
+                //favorites = [recipeId];
             } else {
-                if (favorites.includes(recipeId)) {
-                    favorites = favorites.filter((n) => { return n != recipeId });
+                if (favorites.some(favorite => favorite.id === recipeId)) {
+                    favorites = favorites.filter((obj) => { return obj.id != recipeId });
                     $(this).find("button.not-bookmarked").removeClass("d-none");
                     $(this).find("button.bookmarked").addClass("d-none");
                 } else {
-                    favorites.push(recipeId);
+                    favorites.push({ id: recipeId, title: recipeTitle });
                     $(this).find("button.not-bookmarked").addClass("d-none");
                     $(this).find("button.bookmarked").removeClass("d-none");
                 }
             }
             localStorage.setItem("recipe-favorites", JSON.stringify(favorites));
+            refreshFavoritesMenu(favorites);
         });
+
+        function refreshFavoritesMenu(favoritesArray) {
+            $("#favorites-menu").html("");
+            $.each(favoritesArray, function (index, obj) {
+                var favoriteAnchor = favoritesAnchorTemplate.replace(/__REPLACE__/g, obj.id).replace(/__REPLACE_TITLE__/g, obj.title);
+                $("#favorites-menu").append(favoriteAnchor);
+            });
+        }
     });
     </script>
 }
 
-<h1>Index</h1>
+<h1>Recipes</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -113,7 +132,7 @@
                     </svg>
                 </button>
             </td>
-            <td>
+            <td class="recipe-title" data-recipe-title="@item.Title">
                 @Html.DisplayFor(modelItem => item.Title)
             </td>
             <td>
