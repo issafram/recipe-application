@@ -8,8 +8,6 @@
 @section Scripts{ 
     <script>
     $(function () {
-        var favoritesAnchorTemplate = '<a class="dropdown-item" href="@Url.Action("Details", "Recipes", new { id = "__REPLACE__" })">__REPLACE_TITLE__</a>';
-        var apiData = [];
         GetData();
 
         $("#button-filter").click(function (e) {
@@ -61,40 +59,6 @@
             localStorage.setItem("recipe-favorites", JSON.stringify(favorites));
             refreshFavoritesMenu(favorites);
         });
-
-        function refreshFavoritesMenu(favoritesArray) {
-            $("#favorites-menu").html("");
-            $.each(favoritesArray, function (index, obj) {
-                if (apiData.some(item => item.id === obj.id)){
-                    var favoriteAnchor = favoritesAnchorTemplate.replace(/__REPLACE__/g, obj.id).replace(/__REPLACE_TITLE__/g, obj.title);
-                    $("#favorites-menu").append(favoriteAnchor);
-                }
-            });
-        }
-
-        function LoadData(data) {
-            apiData = data;
-            var favorites = JSON.parse(localStorage.getItem("recipe-favorites"));
-            $.each(favorites, function (index, obj) {
-                if (data.some(item => item.id === obj.id)){
-                    $("td[data-recipe-id='" + obj.id + "']").find("button.not-bookmarked").addClass("d-none");
-                    $("td[data-recipe-id='" + obj.id + "']").find("button.bookmarked").removeClass("d-none");
-
-                    var favoriteAnchor = favoritesAnchorTemplate.replace(/__REPLACE__/g, obj.id).replace(/__REPLACE_TITLE__/g, obj.title);
-                    $("#favorites-menu").append(favoriteAnchor);
-                }
-            });
-        }
-
-        function GetData() {
-            $.getJSON("api/recipes", function (data) {
-                $.each(data, function (item) {
-                    data.push(item);
-                });
-
-                LoadData(data);
-            });
-        }
     });
     </script>
 }
