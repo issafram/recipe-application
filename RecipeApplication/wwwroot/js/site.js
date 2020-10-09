@@ -1,9 +1,13 @@
 ﻿function refreshFavoritesMenu(favoritesArray) {
     $("#favorites-menu").html("");
+    if (favoritesArray.length === 0 || apiData.length === 0) {
+        $("#favorites-menu").addClass("d-none");
+    }
     $.each(favoritesArray, function (index, obj) {
         if (apiData.some(item => item.id === obj.id)) {
             var favoriteAnchor = favoritesAnchorTemplate.replace(/__REPLACE__/g, obj.id).replace(/__REPLACE_TITLE__/g, obj.title);
             $("#favorites-menu").append(favoriteAnchor);
+            $("#favorites-menu").removeClass("d-none");
         }
     });
 }
